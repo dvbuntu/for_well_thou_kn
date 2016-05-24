@@ -2,7 +2,6 @@ from PIL import ImageFont, ImageDraw, Image
 import glob
 import os
 import math
-import itertools
 import numpy as np
 import h5py
 from tqdm import tqdm
@@ -14,7 +13,7 @@ fonts = glob.glob('fonts/*.otf')
 bill = 't8.shakespeare.txt'
 num_chars = 16
 with open(bill,'r') as f:
-    phrases = [l.strip()[:num_chars] for l in f if len(l.strip()) > num_chars and not l.startswith('         ')]
+    phrases = [l.strip()[:num_chars] for l in f if len(l.strip()) > num_chars]
 
 
 # squish 16 characters into 128 pixels wide
@@ -37,7 +36,6 @@ with h5py.File('font_data.h5','w') as h5f:
             img = Image.new('L', img_size)
             draw = ImageDraw.Draw(img)
             draw.text(((img_size[0]-w)/2,(img_size[1]-h)/2), p, fill="white", font=font)
-            draw = ImageDraw.Draw(img)
-            b = np.flipud(np.fromstring(img.tobytes(),dtype=np.uint8).reshape((img_size[1],img_size[0])))
+            b = np.flipud(img)
             dset[i] = b
 
