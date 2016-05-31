@@ -8,9 +8,10 @@ A premade dataset is available on [Google Drive](https://drive.google.com/open?i
 
 * Create data set, `font_data.h5`
 * Read in data, [Video](https://www.youtube.com/watch?v=-VhDjjzvAiE)
+* Simple classification model, [Video](https://www.youtube.com/watch?v=REyDGG9uVbk)
 
 # Upcoming
 
-* Giant neural net model, [Stream](https://www.youtube.com/watch?v=REyDGG9uVbk)
+* Simplest possible model with specialty features, [Stream](https://www.youtube.com/watch?v=g5oGFGCPrtU)
+* Reworking dataset to use full image width even with narrower fonts
 * Basic RNN with convolutions
-* Any decent model
