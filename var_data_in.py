@@ -61,7 +61,7 @@ from keras.optimizers import SGD, Adam, RMSprop
 import sklearn.metrics as metrics
 
 model = Sequential()
-model.add(Dense(7,input_shape=(nrows*ncols,)))
+model.add(Dense(3,input_shape=(nrows*ncols,)))
 model.add(Activation('sigmoid'))
 model.add(Dense(5))
 model.add(Activation('softmax'))
@@ -69,17 +69,18 @@ model.add(Activation('softmax'))
 sgd = SGD()
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
-h = model.fit(train_flat, train_labs, batch_size = 128, nb_epoch=2, validation_data = (test_flat,test_labs), verbose=1)
+h = model.fit(train_flat, train_labs, batch_size = 128, nb_epoch=4, validation_data = (test_flat,test_labs), verbose=1)
 
+#W1,b1 = model.get_weights()
 W1,b1,W2,b2 = model.get_weights()
 num_param = 1024*7 + 7 + 7*5 + 5
 
-sx, sy = (8,1)
+sx, sy = (7,1)
 f, con = plt.subplots(sx,sy, sharex='col', sharey='row')
 con = con.reshape(sx,sy)
 for xx in range(sx):
     for yy in range(sy):
-        con[xx,yy].pcolormesh(W1[:,sy*xx+yy].reshape(16,128), cmap=plt.cm.hot) 
+        con[xx,yy].pcolormesh(W1[:,sy*xx+yy].reshape(nrows,ncols), cmap=plt.cm.hot) 
 
 preds = np.argmax(model.predict(test_flat),axis=1)
 labs = np.argmax(test_labs,axis=1)
