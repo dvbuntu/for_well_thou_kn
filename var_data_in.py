@@ -90,15 +90,14 @@ aic = 2* num_param - 2*metrics.log_loss(np.argmax(test_labs,axis=1),predsp)
 
 # Convolutional
 model = Sequential()
-model.add(Convolution2D(4,3,3,border_mode='same',
+model.add(Convolution2D(4,5,5,border_mode='same',
     input_shape=(1,nrows,ncols)))
-model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Convolution2D(8,3,3,border_mode='same'))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.5))
 model.add(Flatten())
+model.add(Dense(32))
+model.add(Activation('sigmoid'))
 model.add(Dense(5))
 model.add(Activation('softmax'))
 
@@ -108,6 +107,15 @@ model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy
 train_data = data.reshape([-1,1,nrows,ncols])[train_idx]
 test_data = data.reshape([-1,1,nrows,ncols])[test_idx]
 
-h = model.fit(train_data, train_labs, batch_size = 32, nb_epoch=4, validation_data = (test_data,test_labs), verbose=1)
+h = model.fit(train_data, train_labs, batch_size = 32, nb_epoch=2, validation_data = (test_data,test_labs), verbose=1)
+
+preds = np.argmax(model.predict(test_data),axis=1)
+labs = np.argmax(test_labs,axis=1)
+conf = metrics.confusion_matrix(labs,preds)
+
+W1,b1,W2,b2,W3,b3 = model.get_weights()
+f, con = plt.subplots(4,1, sharex='col', sharey='row')
+for i in range(4):
+    con[i].pcolormesh(W1[i,0,:,:],cmap=plt.cm.hot)
 
 
