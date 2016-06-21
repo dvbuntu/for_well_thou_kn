@@ -61,7 +61,7 @@ from keras.optimizers import SGD, Adam, RMSprop
 import sklearn.metrics as metrics
 
 model = Sequential()
-model.add(Dense(3,input_shape=(nrows*ncols,)))
+model.add(Dense(4,input_shape=(nrows*ncols,)))
 model.add(Activation('sigmoid'))
 model.add(Dense(5))
 model.add(Activation('softmax'))
@@ -69,13 +69,13 @@ model.add(Activation('softmax'))
 sgd = SGD()
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
-h = model.fit(train_flat, train_labs, batch_size = 128, nb_epoch=4, validation_data = (test_flat,test_labs), verbose=1)
+h = model.fit(train_flat, train_labs, batch_size = 32, nb_epoch=4, validation_data = (test_flat,test_labs), verbose=1)
 
 #W1,b1 = model.get_weights()
 W1,b1,W2,b2 = model.get_weights()
-num_param = 1024*7 + 7 + 7*5 + 5
+num_param = 1024*4 + 4 + 4*5 + 5
 
-sx, sy = (7,1)
+sx, sy = (4,1)
 f, con = plt.subplots(sx,sy, sharex='col', sharey='row')
 con = con.reshape(sx,sy)
 for xx in range(sx):
@@ -88,52 +88,26 @@ conf = metrics.confusion_matrix(labs,preds)
 predsp = model.predict_proba(test_flat)
 aic = 2* num_param - 2*metrics.log_loss(np.argmax(test_labs,axis=1),predsp)
 
-### Build as a simple a model as possible
-# Extract features, overall height and width
-def get_dim(im):
-    '''Given image, return nonzero width and height'''
-    # Non-zero cols
-    NC = np.where(np.max(im,axis=0) != 0)
-    # overall width
-    width = NC[0][-1] - NC[0][0]
-    # Max of row
-    NR = np.where(np.max(im,axis=1) != 0)
-    # overall height
-    height = NR[0][-1] - NR[0][0]
-    return width,height
+# Convolutional
+model = Sequential()
+model.add(Convolution2D(4,3,3,border_mode='same',
+    input_shape=(1,nrows,ncols)))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Convolution2D(8,3,3,border_mode='same'))
+model.add(Activation('relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.5))
+model.add(Flatten())
+model.add(Dense(5))
+model.add(Activation('softmax'))
 
-train_min = np.array([get_dim(d) for d in tqdm(data[train_idx])],dtype=np.uint8)
-test_min = np.array([get_dim(d) for d in tqdm(data[test_idx])],dtype=np.uint8)
+sgd = SGD()
+model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
-import sklearn.linear_model as lm
-C = lm.LogisticRegression()
-C.fit(train_min,np.argmax(train_labs,axis=1))
-C.score(test_min,np.argmax(test_labs,axis=1))
-preds2 = C.predict_proba(test_min)
-# Tiny AIC
-aic2 = 2* 15 - 2*metrics.log_loss(np.argmax(test_labs,axis=1),preds2)
+train_data = data.reshape([-1,1,nrows,ncols])[train_idx]
+test_data = data.reshape([-1,1,nrows,ncols])[test_idx]
 
-# Three parameter model
-def get_3(im):
-    '''Given image, return nonzero width, bot, top'''
-    # Non-zero cols
-    NC = np.where(np.max(im,axis=0) != 0)
-    # overall width
-    width = NC[0][-1] - NC[0][0]
-    # Max of row
-    NR = np.where(np.max(im,axis=1) != 0)
-    # overall height
-    #height = NR[0][-1] - NR[0][0]
-    return width,NR[0][0],NR[0][-1]
-
-train_min3 = np.array([get_3(d) for d in tqdm(data[train_idx])],dtype=np.uint8)
-test_min3 = np.array([get_3(d) for d in tqdm(data[test_idx])],dtype=np.uint8)
-
-C3 = lm.LogisticRegression()
-C3.fit(train_min3,np.argmax(train_labs,axis=1))
-C3.score(test_min3,np.argmax(test_labs,axis=1))
-preds3 = C3.predict_proba(test_min3)
-# Tiny AIC
-aic3 = 2* 20 - 2*metrics.log_loss(np.argmax(test_labs,axis=1),preds3)
+h = model.fit(train_data, train_labs, batch_size = 32, nb_epoch=4, validation_data = (test_data,test_labs), verbose=1)
 
 

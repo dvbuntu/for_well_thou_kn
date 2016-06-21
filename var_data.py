@@ -22,6 +22,9 @@ img_size = (64,16)
 
 ndata = len(fonts) * len(phrases)
 
+# how many pixels we might jitter (+ or -, x and y)
+jspan = 3
+
 with h5py.File('var_font_data.h5','w') as h5f:
     for f in fonts:
         font = ImageFont.truetype(f,base_size)
@@ -38,9 +41,14 @@ with h5py.File('var_font_data.h5','w') as h5f:
             ow, oh = font.getoffset(p)
             w = w+ow
             h = h+oh
+            # Randomly jitter
+            jx = np.random.randint(-1*jspan,jspan)
+            jy = np.random.randint(-1*jspan,jspan)
             img = Image.new('L', img_size)
             draw = ImageDraw.Draw(img)
-            draw.text(((img_size[0]-w)/2,(img_size[1]-h)/2), p, fill="white", font=font)
+            draw.text(((img_size[0]-w)/2+jx,
+                       (img_size[1]-h)/2+jy),
+                       p, fill="white", font=font)
             b = np.flipud(img)
             dset[i] = b
 
