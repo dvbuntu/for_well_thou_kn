@@ -9,9 +9,10 @@ A premade dataset is available on [Google Drive](https://drive.google.com/open?i
 * Create data set, `font_data.h5`
 * Read in data, [Video](https://www.youtube.com/watch?v=-VhDjjzvAiE)
 * Simple classification model, [Video](https://www.youtube.com/watch?v=REyDGG9uVbk)
+* Simplest possible model with specialty features, [Stream](https://www.youtube.com/watch?v=g5oGFGCPrtU)
+* Reworking dataset to use jittered fonts and remodeling, [Stream1](https://www.youtube.com/watch?v=sT-2sj1fYlU) [Stream2](https://www.youtube.com/watch?v=Mj5tL45b_0s)
+* Basic RNN (actually LSTM) [Stream](https://www.youtube.com/watch?v=O5DBtI8Gm-Q)
 
 # Upcoming
 
-* Simplest possible model with specialty features, [Stream](https://www.youtube.com/watch?v=g5oGFGCPrtU)
-* Reworking dataset to use full image width even with narrower fonts
-* Basic RNN with convolutions
+* Basic RNN with convolutions [Streaming July 12th](https://www.youtube.com/watch?v=wSpPJtenw_c)
