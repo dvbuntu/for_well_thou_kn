@@ -52,7 +52,7 @@ test_labs = labels[test_idx]
 
 # Build keras model
 import keras
-from keras.models import Sequential
+from keras.models import Sequential, Model
 from keras.layers.core import Dense, Dropout, Activation, Flatten, Reshape
 from keras.layers import Embedding, Input, merge
 from keras.layers.recurrent import SimpleRNN, LSTM
@@ -112,15 +112,20 @@ test_block_swap = test_block.swapaxes(0,1).reshape((8,-1,1,16,8))
 # need 8 inputs
 blocks = [Input(shape=(1,nrows,8), name='main_input_{0}'.format(b)) for b in range(num_blocks)]
 # convolution for each input...but I want weights to be the same
-conv = Convolution2D(4,5,5,border_mode='same',
+conv = Convolution2D(8,3,3,border_mode='same',
         activation='relu')
 convs = [conv(b) for b in blocks]
 pools = [MaxPooling2D(pool_size=(2,2))(c)
         for c in convs]
-flats = [Flatten()(p) for p in pools]
+conv2 = Convolution2D(8,3,3,border_mode='same',
+        activation='relu')
+convs2 = [conv2(p) for p in pools]
+pools2 = [MaxPooling2D(pool_size=(2,2))(c)
+         for c in convs2]
+flats = [Flatten()(p) for p in pools2]
 M = merge(flats, mode='concat', concat_axis=1)
-R = Reshape((8,128))(M)
-L = LSTM(output_dim=32, activation='sigmoid', inner_activation='hard_sigmoid')(R)
+R = Reshape((8,64))(M)
+L = LSTM(output_dim=16, activation='sigmoid', inner_activation='hard_sigmoid')(R)
 D = Dropout(0.5)(L)
 O = Dense(5, activation='sigmoid')(D)
 model = Model(input=blocks, output=[O])
@@ -129,5 +134,24 @@ model.compile(loss='categorical_crossentropy',
               optimizer='rmsprop',
               metrics=['accuracy'])
 
-h = model.fit(list(train_block_swap), train_labs, batch_size = 32, nb_epoch=1, validation_data = (list(test_block_swap),test_labs), verbose=1)
+n = 1000000
+h = model.fit(list(train_block_swap[:,:n]), train_labs[:n], batch_size = 32, nb_epoch=10, validation_data = (list(test_block_swap[:,:n]),test_labs[:n]), verbose=1)
+
+# Get the weights
+W = model.get_weights()
+np.savez_compressed('cnnrnn.npz',W)
+num_param = 20877
+
+# Look at the convolutional weight inputs
+sx, sy = (8,1)
+f, con = plt.subplots(sx,sy, sharex='col', sharey='row')
+con = con.reshape(sx,sy)
+for xx in range(sx):
+    for yy in range(sy):
+        con[xx,yy].pcolormesh(W[0][xx].reshape(3,3), cmap=plt.cm.gray) 
+
+# confusion matrix
+preds = np.argmax(model.predict(list(test_block_swap)),axis=1)
+labs = np.argmax(test_labs,axis=1)
+conf = metrics.confusion_matrix(labs,preds)
 
