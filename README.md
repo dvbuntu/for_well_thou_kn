@@ -12,7 +12,7 @@ A premade dataset is available on [Google Drive](https://drive.google.com/open?i
 * Simplest possible model with specialty features, [Stream](https://www.youtube.com/watch?v=g5oGFGCPrtU)
 * Reworking dataset to use jittered fonts and remodeling, [Stream1](https://www.youtube.com/watch?v=sT-2sj1fYlU) [Stream2](https://www.youtube.com/watch?v=Mj5tL45b_0s)
 * Basic RNN (actually LSTM) [Stream](https://www.youtube.com/watch?v=O5DBtI8Gm-Q)
+* Basic RNN with convolutions [Stream](https://www.youtube.com/watch?v=wSpPJtenw_c), implemented as general Keras graph!
 
 # Upcoming
 
-* Basic RNN with convolutions [Streaming July 12th](https://www.youtube.com/watch?v=wSpPJtenw_c)
